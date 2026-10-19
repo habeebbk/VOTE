@@ -1,0 +1,8 @@
+# Sensitive data
+.env
+votes.db
+voters_private.csv
+
+# Python
+__pycache__/
+*.py[cod]

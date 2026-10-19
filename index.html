@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>College Trip Vote</title>
+    <style>
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            background: #f3f6fb;
+            color: #14213d;
+            font: 16px system-ui, Arial
+        }
+
+        .wrap {
+            max-width: 460px;
+            margin: 7vh auto;
+            padding: 18px
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 26px;
+            box-shadow: 0 8px 30px #20304012
+        }
+
+        h1 {
+            margin: 0 0 6px;
+            font-size: 25px
+        }
+
+        p {
+            color: #64748b
+        }
+
+        label {
+            display: block;
+            margin: 16px 0 6px;
+            font-weight: 600
+        }
+
+        input {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            font: inherit
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border: 0;
+            border-radius: 10px;
+            background: #1d4ed8;
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 18px
+        }
+
+        button:disabled {
+            opacity: .5
+        }
+
+        .choice {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            margin: 10px 0
+        }
+
+        .choice input {
+            width: auto
+        }
+
+        #msg {
+            color: #b91c1c;
+            min-height: 24px
+        }
+
+        .small {
+            font-size: 13px
+        }
+
+        .hidden {
+            display: none
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <main class="card">
+            <h1>🏔️ College Trip 2026</h1>
+            <p>Delhi • Agra • Kashmir | Private vote</p>
+            <div id="login">
+                <form id="loginForm"><label>Roll Number</label><input name="roll" required inputmode="numeric"
+                        autocomplete="off"><label>Registered Phone Number</label><input name="phone" required
+                        inputmode="numeric" pattern="[0-9]{10}" maxlength="10" autocomplete="off"><label>4-Digit Secret
+                        Code</label><input name="pin" required type="password" inputmode="numeric" pattern="[0-9]{4}"
+                        maxlength="4" autocomplete="off"><button>Verify & Continue</button></form>
+            </div>
+            <div id="ballot" class="hidden">
+                <h2>Select one agency</h2>
+                <p id="student"></p>
+                <form id="voteForm"><label class="choice"><input type="radio" name="agency" value="travlog"
+                            required>Travlog Tours</label><label class="choice"><input type="radio" name="agency"
+                            value="thilal">Thilal Vacations</label><label class="choice"><input type="radio"
+                            name="agency" value="stories">Stories Travel and Tourism Pvt Ltd</label>
+                    <p class="small">Admin can see who voted for which agency. Your vote cannot be changed.</p>
+                    <button>Confirm Final Vote</button>
+                </form>
+            </div>
+            <div id="done" class="hidden">
+                <h2>✅ Vote recorded!</h2>
+                <p>Thank you. Your vote is final.</p>
+            </div>
+            <p id="msg" role="alert"></p>
+            <p class="small"></p>
+        </main>
+    </div>
+    <script>
+        const $ = id => document.getElementById(id); async function request(path, body) { let r = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': '1' }, body: JSON.stringify(body) }); let x = await r.json(); if (!r.ok) throw Error(x.error || 'Request failed'); return x }
+        $('loginForm').onsubmit = async e => { e.preventDefault(); $('msg').textContent = ''; let f = new FormData(e.target); try { let x = await request('/api/login', Object.fromEntries(f)); $('student').textContent = x.name + ' (Roll ' + x.roll + ')'; $('login').classList.add('hidden'); $('ballot').classList.remove('hidden') } catch (err) { $('msg').textContent = err.message } };
+        $('voteForm').onsubmit = async e => { e.preventDefault(); let f = new FormData(e.target); if (!confirm('Submit your final vote? It cannot be changed.')) return; $('msg').textContent = ''; try { await request('/api/vote', { agency: f.get('agency') }); $('ballot').classList.add('hidden'); $('done').classList.remove('hidden') } catch (err) { $('msg').textContent = err.message } };
+    </script>
+</body>
+
+</html>
